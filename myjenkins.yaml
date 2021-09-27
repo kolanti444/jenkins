@@ -1,0 +1,40 @@
+---
+- hosts: 172.31.89.215
+  become: yes
+  gather_facts: yes
+  tasks:
+  - name: updating apt-get cache
+    apt: 
+     update_cache: yes
+
+  - name: install java8
+    apt:
+     name: default-jdk
+     state: present
+
+  - name: install maven 
+    apt:
+     name: maven
+     state: present
+
+  - name: ensure the repository to be added
+    get_url:
+      url: wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -
+
+
+  - name:  create required set up files
+    shell: echo deb https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list
+
+  - name: updating apt-get cache
+    apt: 
+     update_cache: yes
+
+  - name: install jenkins only
+    apt:
+     name: jenkins
+     state: present
+
+  - name: starting jenkins
+    systemd: 
+      name: jenkins
+      state: present
